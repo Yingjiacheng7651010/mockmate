@@ -1,21 +1,44 @@
-import {useEffect,useState} from 'react';
+import { useState } from 'react';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Home from './pages/Home';
 
-function App() { 
-  const [msg, setmsg] = useState('');
+type User = { id: number; email: string };
 
-  useEffect(() => {
-    fetch('http://localhost:3001/api/hello')
-      .then((res) => res.json())
-      .then((data) => setmsg(data.message))
-      .catch(() => setmsg('后端未启动，请检查终端'));
-  }, []);
-  
+function App() {
+  const [page, setPage] = useState<'login' | 'register' | 'home'>('login');
+  const [user, setUser] = useState<User | null>(null);
+
+  const handleLoginSuccess = (user: User) => {
+    setUser(user);
+    setPage('home');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setPage('login');
+    localStorage.removeItem('token');
+  };
+
   return (
-    <div style={{padding: 40,fontFamily: 'sans-serif'}}>
-      <h1>mockmate启动成功</h1>
-      <p>后端返回: {msg||'加载中...'}</p>
+    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
+      {page === 'login' && (
+        <Login
+          onSuccess={handleLoginSuccess}
+          goRegister={() => setPage('register')}
+        />
+      )}
+      {page === 'register' && (
+        <Register
+          onSuccess={() => setPage('login')}
+          goLogin={() => setPage('login')}
+        />
+      )}
+      {page === 'home' && user && (
+        <Home user={user} onLogout={handleLogout} />
+      )}
     </div>
   );
-
 }
+
 export default App;

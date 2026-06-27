@@ -8,6 +8,7 @@ function InterviewRoom({ config, onEnd }: { config: Config; onEnd: () => void })
   const [feedback, setFeedback] = useState('');
   const [loading, setLoading] = useState(false);
   const [round, setRound] = useState(0);
+  const [streaming, setStreaming] = useState(false);
 
   useEffect(() => {
     generateQuestion();
@@ -16,6 +17,7 @@ function InterviewRoom({ config, onEnd }: { config: Config; onEnd: () => void })
   const generateQuestion = async () => {
     setFeedback('');
     setAnswer('');
+    setStreaming(false);
     const token = localStorage.getItem('token');
     try {
       const res = await fetch('http://localhost:3001/api/interview/generate', {
@@ -32,20 +34,53 @@ function InterviewRoom({ config, onEnd }: { config: Config; onEnd: () => void })
 
   const submitAnswer = async () => {
     setLoading(true);
+    setFeedback('');
+    setStreaming(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:3001/api/interview/evaluate', {
+      const response = await fetch('http://localhost:3001/api/interview/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ question, answer, ...config }),
+        body: JSON.stringify({ question, answer, position: config.position, stack: config.stack }),
       });
-      const data = await res.json();
-      setFeedback(data.feedback);
+      if (!response.ok) throw new Error('请求失败');
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('无法读取流');
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // 保留未完成的行
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr === '[DONE]') {
+              setStreaming(false);
+              continue;
+            }
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.error) {
+                setFeedback(prev => prev + `\n错误：${parsed.error}`);
+                setStreaming(false);
+              } else if (parsed.content) {
+                setFeedback(prev => prev + parsed.content);
+              }
+            } catch (e) {
+              // 忽略 JSON 解析错误（可能是片段）
+            }
+          }
+        }
+      }
       setRound(prev => prev + 1);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setFeedback(prev => prev + `\n请求异常：${err.message}`);
     } finally {
       setLoading(false);
+      setStreaming(false);
     }
   };
 
@@ -78,15 +113,17 @@ function InterviewRoom({ config, onEnd }: { config: Config; onEnd: () => void })
         disabled={loading || !answer.trim()}
         style={{ marginTop: 8, padding: 10, background: '#10B981', color: '#fff', border: 'none', width: '100%' }}
       >
-        {loading ? '评估中...' : '提交答案'}
+        {loading && streaming ? 'AI 正在回答...' : loading ? '评估中...' : '提交答案'}
       </button>
       {feedback && (
         <div style={{ background: '#e6fffa', padding: 12, marginTop: 12, whiteSpace: 'pre-wrap' }}>
           <strong>AI 反馈：</strong>
-          <p>{feedback}</p>
-          <button onClick={handleNext} style={{ marginTop: 8, padding: 8, background: '#4F46E5', color: '#fff', border: 'none' }}>
-            {feedback.includes('结束') ? '结束面试' : '下一题'}
-          </button>
+          <p>{feedback}{streaming && <span style={{ color: '#4F46E5' }}>▌</span>}</p>
+          {!streaming && (
+            <button onClick={handleNext} style={{ marginTop: 8, padding: 8, background: '#4F46E5', color: '#fff', border: 'none' }}>
+              {feedback.includes('结束') ? '结束面试' : '下一题'}
+            </button>
+          )}
         </div>
       )}
     </div>

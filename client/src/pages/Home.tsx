@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 type Props = {
   user: { id: number; email: string };
   onLogout: () => void;
-  onStartInterview: () => void;   // 新增这一行
+  onStartInterview: () => void;
+  goHistory: () => void;   // 新增
 };
 
-function Home({ user, onLogout, onStartInterview }: Props) {
+function Home({ user, onLogout, onStartInterview, goHistory }: Props) {
   const [me, setMe] = useState<any>(null);
 
   useEffect(() => {
@@ -31,13 +32,19 @@ function Home({ user, onLogout, onStartInterview }: Props) {
       )}
       <button
         onClick={onStartInterview}
-        style={{ marginTop: 20, padding: '10px 20px', background: '#4F46E5', color: '#fff', border: 'none', cursor: 'pointer' }}
+        style={{ margin: '10px', padding: '10px 20px', background: '#4F46E5', color: '#fff', border: 'none', cursor: 'pointer' }}
       >
         🚀 开始模拟面试
       </button>
       <button
+        onClick={goHistory}
+        style={{ margin: '10px', padding: '10px 20px', background: '#4F46E5', color: '#fff', border: 'none', cursor: 'pointer' }}
+      >
+        📋 历史面试
+      </button>
+      <button
         onClick={onLogout}
-        style={{ marginTop: 10, padding: '8px 16px', background: '#EF4444', color: '#fff', border: 'none', cursor: 'pointer' }}
+        style={{ margin: '10px', padding: '8px 16px', background: '#EF4444', color: '#fff', border: 'none', cursor: 'pointer' }}
       >
         退出登录
       </button>

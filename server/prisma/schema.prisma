@@ -16,4 +16,27 @@ model User{
   email String @unique
   password String 
   createdAt DateTime @default(now())
+  interviews  Interview[]
 }
+model Interview{
+  id         Int        @id @default(autoincrement())
+  userId     Int
+  position   String
+  stack      String
+  difficulty String
+  createdAt  DateTime   @default(now())
+  user       User       @relation(fields: [userId], references: [id])
+  questions  Question[]
+}
+model Question{
+  id           Int       @id @default(autoincrement())
+  interviewId  Int
+  questionText String
+  answerText   String?
+  feedback     String?
+  score        Int?
+  createdAt    DateTime  @default(now())
+  interview    Interview @relation(fields: [interviewId], references: [id])
+}
+
+

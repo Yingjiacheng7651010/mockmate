@@ -8,8 +8,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 model User{
   id  Int  @id @default(autoincrement())
@@ -28,15 +28,15 @@ model Interview{
   user       User       @relation(fields: [userId], references: [id])
   questions  Question[]
 }
-model Question{
+model Question {
   id           Int       @id @default(autoincrement())
   interviewId  Int
   questionText String
   answerText   String?
   feedback     String?
   score        Int?
+  scores       String?   // 必须存在
   createdAt    DateTime  @default(now())
   interview    Interview @relation(fields: [interviewId], references: [id])
 }
-
 

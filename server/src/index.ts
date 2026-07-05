@@ -8,7 +8,7 @@ import interviewRoutes from './routes/interview';  // 新增
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+const PORT = process.env.PORT || 3001;
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'mockmate-dev-secret';
 

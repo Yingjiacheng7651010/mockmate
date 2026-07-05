@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE } from '../config';
 
 type Props = {
   user: { id: number; email: string };
@@ -12,7 +13,7 @@ function Home({ user, onLogout, onStartInterview, goHistory }: Props) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch('http://localhost:3001/api/auth/me', {
+    fetch(`${API_BASE}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())

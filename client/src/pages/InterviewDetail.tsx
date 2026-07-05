@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from 'recharts';
+import { API_BASE } from '../config';
 
 type Question = {
   id: number;
@@ -27,7 +28,7 @@ function InterviewDetail({ interviewId, onBack }: { interviewId: number; onBack:
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch(`http://localhost:3001/api/interview/${interviewId}`, {
+    fetch(`${API_BASE}/api/interview/${interviewId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())

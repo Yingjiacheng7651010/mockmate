@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../config';
 
 type Props = {
   onSuccess: () => void;
@@ -16,7 +17,7 @@ function Register({ onSuccess, goLogin }: Props) {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

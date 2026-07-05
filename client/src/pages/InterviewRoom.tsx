@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../config';
 
 type Config = { position: string; stack: string; difficulty: string };
 
@@ -20,7 +21,7 @@ function InterviewRoom({ config, interviewId, onEnd }: { config: Config; intervi
     setStreaming(false);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:3001/api/interview/generate', {
+      const res = await fetch(`${API_BASE}/api/interview/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(config),

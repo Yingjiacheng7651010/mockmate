@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE } from '../config';
 
 type InterviewSummary = {
   id: number;
@@ -15,7 +16,7 @@ function InterviewList({ onBack, onViewDetail }: { onBack: () => void; onViewDet
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch('http://localhost:3001/api/interview/list', {
+    fetch(`${API_BASE}/api/interview/list`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())

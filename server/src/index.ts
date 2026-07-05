@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import interviewRoutes from './routes/interview';  // 新增
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 const PORT = process.env.PORT || 3001;
 const prisma = new PrismaClient();
@@ -45,5 +45,4 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 
 // 面试路由
 app.use('/api/interview', interviewRoutes);
-
-app.listen(3001, () => console.log('后端已启动 http://localhost:3001'));
+app.listen(PORT, () => console.log(`后端已启动 http://localhost:${PORT}`));

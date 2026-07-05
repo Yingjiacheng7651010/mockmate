@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../config';
 
 type Props = {
   onStart: (config: any, interviewId: number) => void;
@@ -18,7 +19,7 @@ function InterviewSetup({ onStart }: Props) {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:3001/api/interview/start', {
+      const res = await fetch(`${API_BASE}/api/interview/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ position, stack, difficulty }),
